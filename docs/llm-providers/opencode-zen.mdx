@@ -8,13 +8,14 @@ OpenCode Zen is a curated AI gateway providing tested and verified models from O
 ## Setup
 
 1. Sign in to [OpenCode Zen](https://opencode.ai/auth) and get your API key
-2. Configure Mrgana:
+2. Configure Mrgana (API endpoint is auto-configured):
 
 ```bash
 export MRGANA_LLM="opencode/gpt-5.4"
 export LLM_API_KEY="your-opencode-zen-api-key"
-export LLM_API_BASE="https://opencode.ai/zen/v1"
 ```
+
+That's it! The API endpoint is automatically set when you use an `opencode/` model prefix.
 
 ## Supported Models
 
@@ -64,17 +65,14 @@ export LLM_API_BASE="https://opencode.ai/zen/v1"
 # OpenAI GPT 5.4
 export MRGANA_LLM="opencode/gpt-5.4"
 export LLM_API_KEY="your-opencode-zen-api-key"
-export LLM_API_BASE="https://opencode.ai/zen/v1"
 
 # Claude Sonnet 5
 export MRGANA_LLM="opencode/claude-sonnet-5"
 export LLM_API_KEY="your-opencode-zen-api-key"
-export LLM_API_BASE="https://opencode.ai/zen/v1"
 
 # Free model
 export MRGANA_LLM="opencode/mimo-v2.5-free"
 export LLM_API_KEY="your-opencode-zen-api-key"
-export LLM_API_BASE="https://opencode.ai/zen/v1"
 ```
 
 ## Pricing

@@ -102,12 +102,24 @@ FRONTIER_MODEL_FAMILIES = (
 )
 
 
+_OPENCODE_ZEN_BASE_URL = "https://opencode.ai/zen/v1"
+
+
+def _is_opencode_zen_model(model_name: str | None) -> bool:
+    return bool(model_name and model_name.strip().lower().startswith("opencode/"))
+
+
 def configure_sdk_model_defaults(settings: Settings) -> None:
     """Apply Mrgana config to SDK-native defaults."""
     llm = settings.llm
     set_tracing_disabled(True)
     _configure_litellm_compatibility()
     _configure_openrouter_attribution(llm.model)
+
+    # Auto-configure OpenCode Zen endpoint when model starts with opencode/
+    if _is_opencode_zen_model(llm.model) and not llm.api_base:
+        llm.api_base = _OPENCODE_ZEN_BASE_URL
+
     if llm.api_key:
         set_default_openai_key(llm.api_key, use_for_tracing=False)
         _configure_litellm_default("api_key", llm.api_key)
