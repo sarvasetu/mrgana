@@ -41,6 +41,9 @@ class MrganaProvider(MultiProvider):
             )
         if prefix == "ollama" and stripped_model_name:
             return self._get_fallback_provider("litellm"), f"ollama_chat/{stripped_model_name}"
+        # OpenCode Zen models - route through openai-compatible with custom base URL
+        if prefix == "opencode" and stripped_model_name:
+            return self._get_fallback_provider("openai"), stripped_model_name
         return self._get_fallback_provider("litellm"), original_model_name
 
 
