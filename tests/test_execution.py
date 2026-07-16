@@ -6,13 +6,13 @@ import asyncio
 
 import pytest
 
-from strix.core.agents import AgentCoordinator
+from mrgana.core.agents import AgentCoordinator
 
 
 @pytest.mark.asyncio
 async def test_budget_stop_sets_flag() -> None:
     coordinator = AgentCoordinator()
-    await coordinator.register("root", "strix", parent_id=None)
+    await coordinator.register("root", "mrgana", parent_id=None)
 
     assert coordinator.budget_stopped is False
     await coordinator.trigger_budget_stop()
@@ -24,7 +24,7 @@ async def test_budget_stop_unblocks_parked_agent() -> None:
     # A parent parked in wait_for_message (awaiting a child) must be released so
     # it can exit, no matter where in the tree the budget limit was hit.
     coordinator = AgentCoordinator()
-    await coordinator.register("parent", "strix", parent_id=None)
+    await coordinator.register("parent", "mrgana", parent_id=None)
 
     waiter = asyncio.create_task(coordinator.wait_for_message("parent"))
     await asyncio.sleep(0)  # let the waiter park

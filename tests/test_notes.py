@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-import strix.tools.notes.tools as notes_tools
+import mrgana.tools.notes.tools as notes_tools
 
 
 if TYPE_CHECKING:

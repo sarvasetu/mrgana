@@ -14,8 +14,8 @@ from agents.sandbox.errors import (
     WorkspaceStartError,
 )
 
-from strix.runtime import session_manager
-from strix.runtime.backends import start_session_with_retry
+from mrgana.runtime import session_manager
+from mrgana.runtime.backends import start_session_with_retry
 
 
 class _FakeSession:
@@ -68,7 +68,7 @@ async def test_transient_workspace_failure_retries_and_tears_down(
     async def record_sleep(delay: float) -> None:
         sleeps.append(delay)
 
-    monkeypatch.setattr("strix.runtime.backends.asyncio.sleep", record_sleep)
+    monkeypatch.setattr("mrgana.runtime.backends.asyncio.sleep", record_sleep)
 
     session = await start_session_with_retry(client, client.create, attempts=3)
 
@@ -124,7 +124,7 @@ async def test_each_transient_attempt_is_torn_down(monkeypatch: pytest.MonkeyPat
     async def record_sleep(delay: float) -> None:
         sleeps.append(delay)
 
-    monkeypatch.setattr("strix.runtime.backends.asyncio.sleep", record_sleep)
+    monkeypatch.setattr("mrgana.runtime.backends.asyncio.sleep", record_sleep)
 
     async def create_session() -> _FakeSession:
         client.created += 1
@@ -165,13 +165,13 @@ async def test_staged_dirs_survive_retries_and_cleanup_once(
     async def record_sleep(delay: float) -> None:
         sleeps.append(delay)
 
-    monkeypatch.setattr("strix.runtime.backends.asyncio.sleep", record_sleep)
+    monkeypatch.setattr("mrgana.runtime.backends.asyncio.sleep", record_sleep)
 
     def record_rmtree(path: str | Path, **kwargs: Any) -> None:
         removed_paths.append(Path(path))
         original_rmtree(path, **kwargs)  # pyright: ignore[reportDeprecated]
 
-    monkeypatch.setattr("strix.runtime.session_manager.shutil.rmtree", record_rmtree)
+    monkeypatch.setattr("mrgana.runtime.session_manager.shutil.rmtree", record_rmtree)
     monkeypatch.setattr(
         session_manager,
         "load_settings",

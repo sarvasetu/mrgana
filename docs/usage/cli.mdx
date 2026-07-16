@@ -1,12 +1,12 @@
 ---
 title: "CLI Reference"
-description: "Command-line options for Strix"
+description: "Command-line options for Mrgana"
 ---
 
 ## Basic Usage
 
 ```bash
-strix (--target <target> | --target-list <path> | --mount <path>) [options]
+mrgana (--target <target> | --target-list <path> | --mount <path>) [options]
 ```
 
 ## Options
@@ -22,7 +22,7 @@ strix (--target <target> | --target-list <path> | --mount <path>) [options]
 <ParamField path="--mount" type="string">
   Bind-mount a local directory into the sandbox (read-only) instead of copying it in file-by-file. Use this for large repositories that are too big to stream into the container. Can be specified multiple times.
 
-  Strix copies local `--target` directories into the sandbox one file at a time, which stalls on very large trees. When a local target exceeds the copy limit (see `STRIX_MAX_LOCAL_COPY_MB`, default 1024 MB) Strix exits early and asks you to re-run with `--mount`.
+  Mrgana copies local `--target` directories into the sandbox one file at a time, which stalls on very large trees. When a local target exceeds the copy limit (see `MRGANA_MAX_LOCAL_COPY_MB`, default 1024 MB) Mrgana exits early and asks you to re-run with `--mount`.
 
   <Note>
     The mount is read-only to protect your source from accidental modification. This is not a hard security boundary: a root process inside the container can remount it writable, so treat `--mount` as "scan my own code", not as isolation from untrusted code.
@@ -58,7 +58,7 @@ strix (--target <target> | --target-list <path> | --mount <path>) [options]
 </ParamField>
 
 <ParamField path="--config" type="string">
-  Path to a custom config file (JSON) to use instead of `~/.strix/cli-config.json`.
+  Path to a custom config file (JSON) to use instead of `~/.mrgana/cli-config.json`.
 </ParamField>
 
 <ParamField path="--max-budget-usd" type="number">
@@ -77,7 +77,7 @@ strix (--target <target> | --target-list <path> | --mount <path>) [options]
     concurrently).
   - Cost is a best-effort estimate derived from token usage and model pricing;
     providers that do not expose priced usage may under-count.
-  - For LiteLLM-routed models, Strix enables streaming success callbacks to
+  - For LiteLLM-routed models, Mrgana enables streaming success callbacks to
     capture provider-reported cost. Message content remains excluded, but
     third-party LiteLLM callbacks configured in the same process can receive
     other streaming metadata such as model names, request IDs, and token
@@ -88,28 +88,28 @@ strix (--target <target> | --target-list <path> | --mount <path>) [options]
 
 ```bash
 # Basic scan
-strix --target https://example.com
+mrgana --target https://example.com
 
 # Authenticated testing
-strix --target https://app.com --instruction "Use credentials: user:pass"
+mrgana --target https://app.com --instruction "Use credentials: user:pass"
 
 # Focused testing
-strix --target api.example.com --instruction "Focus on IDOR and auth bypass"
+mrgana --target api.example.com --instruction "Focus on IDOR and auth bypass"
 
 # CI/CD mode
-strix -n --target ./ --scan-mode quick
+mrgana -n --target ./ --scan-mode quick
 
 # Force diff-scope against a specific base ref
-strix -n --target ./ --scan-mode quick --scope-mode diff --diff-base origin/main
+mrgana -n --target ./ --scan-mode quick --scope-mode diff --diff-base origin/main
 
 # Multi-target white-box testing
-strix -t https://github.com/org/app -t https://staging.example.com
+mrgana -t https://github.com/org/app -t https://staging.example.com
 
 # Targets from a file
-strix --target-list ./targets.txt
+mrgana --target-list ./targets.txt
 
 # Large local repository — bind-mount instead of copying it in
-strix --mount ./huge-monorepo
+mrgana --mount ./huge-monorepo
 ```
 
 ## Exit Codes

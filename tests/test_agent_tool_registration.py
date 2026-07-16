@@ -5,7 +5,7 @@ from __future__ import annotations
 import pytest
 from agents.tool import FunctionTool
 
-from strix.agents import factory
+from mrgana.agents import factory
 
 
 def _tool(name: str) -> FunctionTool:
@@ -38,8 +38,8 @@ def test_registered_tools_appear_before_lifecycle_tool() -> None:
     tool = _tool("extra")
     factory.register_agent_tools(tool)
 
-    root = factory.build_strix_agent(is_root=True)
-    child = factory.build_strix_agent(is_root=False)
+    root = factory.build_mrgana_agent(is_root=True)
+    child = factory.build_mrgana_agent(is_root=False)
 
     root_names = [t.name for t in root.tools]
     child_names = [t.name for t in child.tools]
@@ -51,7 +51,7 @@ def test_registered_tools_appear_before_lifecycle_tool() -> None:
 def test_per_call_extra_tools_stack_with_registry() -> None:
     factory.register_agent_tools(_tool("registered"))
 
-    agent = factory.build_strix_agent(is_root=True, extra_tools=[_tool("per_call")])
+    agent = factory.build_mrgana_agent(is_root=True, extra_tools=[_tool("per_call")])
     names = [t.name for t in agent.tools]
 
     assert "registered" in names
@@ -70,19 +70,19 @@ def test_per_call_extra_tools_reject_duplicate_registered_names() -> None:
     factory.register_agent_tools(_tool("same_name"))
 
     with pytest.raises(ValueError, match="same_name"):
-        factory.build_strix_agent(is_root=True, extra_tools=[_tool("same_name")])
+        factory.build_mrgana_agent(is_root=True, extra_tools=[_tool("same_name")])
 
 
 def test_instructions_override_is_used_verbatim() -> None:
     custom = "You are a scan agent. Follow the provided scope."
 
-    agent = factory.build_strix_agent(is_root=True, instructions_override=custom)
+    agent = factory.build_mrgana_agent(is_root=True, instructions_override=custom)
 
     assert agent.instructions == custom
 
 
 def test_no_override_renders_builtin_prompt() -> None:
-    agent = factory.build_strix_agent(is_root=True)
+    agent = factory.build_mrgana_agent(is_root=True)
 
     assert isinstance(agent.instructions, str)
     assert agent.instructions != ""

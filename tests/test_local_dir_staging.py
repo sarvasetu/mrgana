@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from strix.runtime.local_dir_staging import stage_symlink_safe_dir, tree_has_symlink
+from mrgana.runtime.local_dir_staging import stage_symlink_safe_dir, tree_has_symlink
 
 
 if TYPE_CHECKING:

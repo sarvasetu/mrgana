@@ -1,6 +1,7 @@
 FROM kalilinux/kali-rolling:latest
 
-LABEL description="AI Agent Penetration Testing Environment with Comprehensive Automated Tools"
+LABEL description="Mrgana AI Agent Penetration Testing Environment with Comprehensive Automated Tools"
+LABEL maintainer="Mrgana <sarvasetu@gmail.com>"
 
 RUN apt-get update && \
     apt-get install -y kali-archive-keyring sudo && \
@@ -199,8 +200,8 @@ RUN python3 -m venv /app/.venv && \
         > /home/pentester/.local/bin/jwt_tool && \
     chmod +x /home/pentester/.local/bin/jwt_tool
 
-COPY --chown=pentester:pentester strix/tools/proxy/caido_api.py /opt/strix-python/caido_api.py
-ENV PYTHONPATH=/opt/strix-python
+COPY --chown=pentester:pentester mrgana/tools/proxy/caido_api.py /opt/mrgana-python/caido_api.py
+ENV PYTHONPATH=/opt/mrgana-python
 
 RUN echo 'export PATH="/home/pentester/go/bin:/home/pentester/.local/bin:/home/pentester/.npm-global/bin:$PATH"' >> /home/pentester/.bashrc && \
     echo 'export PATH="/home/pentester/go/bin:/home/pentester/.local/bin:/home/pentester/.npm-global/bin:$PATH"' >> /home/pentester/.profile

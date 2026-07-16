@@ -1,4 +1,4 @@
-"""Tests for pure input builders in strix.core.inputs."""
+"""Tests for pure input builders in mrgana.core.inputs."""
 
 from __future__ import annotations
 
@@ -7,7 +7,7 @@ from typing import Any
 
 import pytest
 
-from strix.core.inputs import build_root_task, child_initial_input, make_model_settings
+from mrgana.core.inputs import build_root_task, child_initial_input, make_model_settings
 
 
 def _child_kwargs(parent_history: list[Any]) -> dict[str, Any]:

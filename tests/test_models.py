@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from strix.config.models import RECOMMENDED_MODEL_NAMES, is_recommended_or_frontier_model
+from mrgana.config.models import RECOMMENDED_MODEL_NAMES, is_recommended_or_frontier_model
 
 
 @pytest.mark.parametrize("model_name", RECOMMENDED_MODEL_NAMES)

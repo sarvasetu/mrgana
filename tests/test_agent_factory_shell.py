@@ -8,7 +8,7 @@ from typing import Any, cast
 import pytest
 from agents.tool import FunctionTool
 
-from strix.agents import factory
+from mrgana.agents import factory
 
 
 def _capturing_exec_tool(captured: dict[str, str]) -> FunctionTool:

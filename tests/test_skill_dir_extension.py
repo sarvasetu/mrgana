@@ -2,8 +2,8 @@ from pathlib import Path
 
 import pytest
 
-import strix.skills as skills_mod
-from strix.skills import (
+import mrgana.skills as skills_mod
+from mrgana.skills import (
     get_all_skill_names,
     get_available_skills,
     load_skills,
@@ -37,7 +37,7 @@ def _write_root_skill(root: Path, name: str, body: str) -> None:
 
 def test_no_registration_leaves_builtin_only() -> None:
     assert registered_skill_dirs() == ()
-    builtin = skills_mod.get_strix_resource_path("skills")
+    builtin = skills_mod.get_mrgana_resource_path("skills")
     assert skill_search_dirs() == (builtin,)
     assert {"nmap", "subfinder"}.issubset(get_available_skills()["tooling"])
 
