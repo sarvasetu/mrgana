@@ -1,0 +1,87 @@
+---
+title: "OpenCode Zen"
+description: "Use OpenCode Zen models in Mrgana"
+---
+
+OpenCode Zen is a curated AI gateway providing tested and verified models from OpenAI, Anthropic, Google, DeepSeek, Qwen, and more.
+
+## Setup
+
+1. Sign in to [OpenCode Zen](https://opencode.ai/auth) and get your API key
+2. Configure Mrgana:
+
+```bash
+export MRGANA_LLM="opencode/gpt-5.4"
+export LLM_API_KEY="your-opencode-zen-api-key"
+export LLM_API_BASE="https://opencode.ai/zen/v1"
+```
+
+## Supported Models
+
+### OpenAI Models (via Responses API)
+- `opencode/gpt-5.6-sol` - GPT 5.6 Sol
+- `opencode/gpt-5.6-terra` - GPT 5.6 Terra
+- `opencode/gpt-5.5` - GPT 5.5
+- `opencode/gpt-5.5-pro` - GPT 5.5 Pro
+- `opencode/gpt-5.4` - GPT 5.4
+- `opencode/gpt-5.4-pro` - GPT 5.4 Pro
+- `opencode/gpt-5.4-mini` - GPT 5.4 Mini
+- `opencode/gpt-5.3-codex` - GPT 5.3 Codex
+
+### Anthropic Models (via Messages API)
+- `opencode/claude-fable-5` - Claude Fable 5
+- `opencode/claude-opus-4-8` - Claude Opus 4.8
+- `opencode/claude-opus-4-7` - Claude Opus 4.7
+- `opencode/claude-sonnet-5` - Claude Sonnet 5
+- `opencode/claude-sonnet-4-6` - Claude Sonnet 4.6
+- `opencode/claude-haiku-4-5` - Claude Haiku 4.5
+
+### Google Models
+- `opencode/gemini-3.5-flash` - Gemini 3.5 Flash
+- `opencode/gemini-3.1-pro` - Gemini 3.1 Pro
+- `opencode/gemini-3-flash` - Gemini 3 Flash
+
+### Other Models (via Chat Completions)
+- `opencode/deepseek-v4-pro` - DeepSeek V4 Pro
+- `opencode/deepseek-v4-flash` - DeepSeek V4 Flash
+- `opencode/qwen3.7-max` - Qwen3.7 Max
+- `opencode/qwen3.7-plus` - Qwen3.7 Plus
+- `opencode/kimi-k2.7-code` - Kimi K2.7 Code
+- `opencode/kimi-k2.6` - Kimi K2.6
+- `opencode/minimax-m3` - MiniMax M3
+- `opencode/grok-4.5` - Grok 4.5
+
+### Free Models
+- `opencode/mimo-v2.5-free` - MiMo V2.5 Free
+- `opencode/deepseek-v4-flash-free` - DeepSeek V4 Flash Free
+- `opencode/nemotron-3-ultra-free` - Nemotron 3 Ultra Free
+- `opencode/north-mini-code-free` - North Mini Code Free
+- `opencode/big-pickle` - Big Pickle (Free)
+
+## Example Configurations
+
+```bash
+# OpenAI GPT 5.4
+export MRGANA_LLM="opencode/gpt-5.4"
+export LLM_API_KEY="your-opencode-zen-api-key"
+export LLM_API_BASE="https://opencode.ai/zen/v1"
+
+# Claude Sonnet 5
+export MRGANA_LLM="opencode/claude-sonnet-5"
+export LLM_API_KEY="your-opencode-zen-api-key"
+export LLM_API_BASE="https://opencode.ai/zen/v1"
+
+# Free model
+export MRGANA_LLM="opencode/mimo-v2.5-free"
+export LLM_API_KEY="your-opencode-zen-api-key"
+export LLM_API_BASE="https://opencode.ai/zen/v1"
+```
+
+## Pricing
+
+Pay-as-you-go per 1M tokens. Free models available. See [OpenCode Zen pricing](https://opencode.ai/docs/zen#pricing) for details.
+
+## Learn More
+
+- [OpenCode Zen Documentation](https://opencode.ai/docs/zen)
+- [OpenCode Zen Pricing](https://opencode.ai/docs/zen#pricing)
