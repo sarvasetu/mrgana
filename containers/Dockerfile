@@ -211,20 +211,22 @@ ENV VIRTUAL_ENV="/app/.venv"
 
 WORKDIR /app
 
-ARG CAIDO_VERSION=0.56.0
-RUN ARCH=$(uname -m) && \
-    if [ "$ARCH" = "x86_64" ]; then \
-        CAIDO_ARCH="x86_64"; \
-    elif [ "$ARCH" = "aarch64" ] || [ "$ARCH" = "arm64" ]; then \
-        CAIDO_ARCH="aarch64"; \
-    else \
-        echo "Unsupported architecture: $ARCH" && exit 1; \
-    fi && \
-    wget -O caido-cli.tar.gz "https://caido.download/releases/v${CAIDO_VERSION}/caido-cli-v${CAIDO_VERSION}-linux-${CAIDO_ARCH}.tar.gz" && \
-    tar -xzf caido-cli.tar.gz && \
-    chmod +x caido-cli && \
-    rm caido-cli.tar.gz && \
-    mv caido-cli /usr/local/bin/
+# Caido installation - temporarily disabled due to download URL issues
+# Will be installed manually or via alternative method
+# ARG CAIDO_VERSION=0.56.0
+# RUN ARCH=$(uname -m) && \
+#     if [ "$ARCH" = "x86_64" ]; then \
+#         CAIDO_ARCH="x86_64"; \
+#     elif [ "$ARCH" = "aarch64" ] || [ "$ARCH" = "arm64" ]; then \
+#         CAIDO_ARCH="aarch64"; \
+#     else \
+#         echo "Unsupported architecture: $ARCH" && exit 1; \
+#     fi && \
+#     wget -O caido-cli.tar.gz "https://caido.download/releases/v${CAIDO_VERSION}/caido-cli-v${CAIDO_VERSION}-linux-${CAIDO_ARCH}.tar.gz" && \
+#     tar -xzf caido-cli.tar.gz && \
+#     chmod +x caido-cli && \
+#     rm caido-cli.tar.gz && \
+#     mv caido-cli /usr/local/bin/
 
 ENV REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt
 ENV SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt
