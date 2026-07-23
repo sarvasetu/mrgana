@@ -205,11 +205,12 @@ USER pentester
 # Install Python-based mobile analysis tools
 RUN pip3 install --break-system-packages androguard quark-engine apkleaks
 
-USER pentester
-
+# Cleanup as root before switching user
 RUN apt-get autoremove -y && \
     apt-get autoclean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+USER pentester
 
 ENV PATH="/home/pentester/go/bin:/home/pentester/.local/bin:/home/pentester/.npm-global/bin:/app/.venv/bin:$PATH"
 ENV VIRTUAL_ENV="/app/.venv"
