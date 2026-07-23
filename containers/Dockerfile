@@ -221,11 +221,15 @@ RUN ARCH=$(uname -m) && \
     else \
         echo "Unsupported architecture: $ARCH" && exit 1; \
     fi && \
-    curl -sL "https://caido.download/releases/v${CAIDO_VERSION}/caido-cli-v${CAIDO_VERSION}-linux-${CAIDO_ARCH}.tar.gz" -o /tmp/caido-cli.tar.gz && \
+    echo "Downloading Caido v${CAIDO_VERSION} for ${CAIDO_ARCH}..." && \
+    curl -L --retry 3 --retry-delay 5 "https://caido.download/releases/v${CAIDO_VERSION}/caido-cli-v${CAIDO_VERSION}-linux-${CAIDO_ARCH}.tar.gz" -o /tmp/caido-cli.tar.gz && \
+    echo "Extracting..." && \
     tar -xzf /tmp/caido-cli.tar.gz -C /tmp && \
+    echo "Installing..." && \
     chmod +x /tmp/caido-cli && \
     mv /tmp/caido-cli /usr/local/bin/ && \
-    rm -f /tmp/caido-cli.tar.gz
+    rm -f /tmp/caido-cli.tar.gz && \
+    echo "Caido installed successfully"
 
 ENV REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt
 ENV SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt
