@@ -165,11 +165,9 @@ RUN npm install -g jshint
 
 USER root
 
-# Install Java for jadx
+# Install Java for jadx (use default-jdk for Kali compatibility)
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    openjdk-17-jdk \
-    libncurses5 \
-    libstdc++6 \
+    default-jdk \
     && rm -rf /var/lib/apt/lists/*
 
 # Install jadx (DEX to Java decompiler)
