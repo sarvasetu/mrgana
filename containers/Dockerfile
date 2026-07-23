@@ -173,7 +173,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Install jadx (DEX to Java decompiler)
 RUN set -eux; \
     JADX_VERSION="1.5.1"; \
-    wget -q "https://github.com/skylot/jadx/releases/download/v${JADX_VERSION}/jadx-${JADX_VERSION}.zip" -O /tmp/jadx.zip && \
+    curl -sL "https://github.com/skylot/jadx/releases/download/v${JADX_VERSION}/jadx-${JADX_VERSION}.zip" -o /tmp/jadx.zip && \
     unzip -q /tmp/jadx.zip -d /opt/jadx && \
     chmod +x /opt/jadx/bin/jadx && \
     ln -sf /opt/jadx/bin/jadx /usr/local/bin/jadx && \
@@ -182,13 +182,13 @@ RUN set -eux; \
 # Install apktool (APK reverse engineering)
 RUN set -eux; \
     APKTOOL_VERSION="2.10.0"; \
-    wget -q "https://raw.githubusercontent.com/iBotPeaches/Apktool/master/scripts/linux/apktool" -O /usr/local/bin/apktool && \
-    wget -q "https://bitbucket.org/iBotPeaches/apktool/downloads/apktool_${APKTOOL_VERSION}.jar" -O /usr/local/bin/apktool.jar && \
+    curl -sL "https://raw.githubusercontent.com/iBotPeaches/Apktool/master/scripts/linux/apktool" -o /usr/local/bin/apktool && \
+    curl -sL "https://bitbucket.org/iBotPeaches/apktool/downloads/apktool_${APKTOOL_VERSION}.jar" -o /usr/local/bin/apktool.jar && \
     chmod +x /usr/local/bin/apktool
 
 # Install dex2jar (DEX to JAR conversion)
 RUN set -eux; \
-    wget -q "https://github.com/pxb1988/dex2jar/releases/download/v2.4/dex-tools-v2.4.zip" -O /tmp/dex2jar.zip && \
+    curl -sL "https://github.com/pxb1988/dex2jar/releases/download/v2.4/dex-tools-v2.4.zip" -o /tmp/dex2jar.zip && \
     unzip -q /tmp/dex2jar.zip -d /opt/dex2jar && \
     chmod +x /opt/dex2jar/*.sh && \
     for f in /opt/dex2jar/*.sh; do ln -sf "$f" /usr/local/bin/$(basename "$f" .sh); done && \
