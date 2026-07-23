@@ -167,8 +167,7 @@ USER root
 
 # Install Java for jadx (use default-jdk for Kali compatibility)
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    default-jdk \
-    && rm -rf /var/lib/apt/lists/*
+    default-jdk
 
 # Install jadx (DEX to Java decompiler)
 RUN set -eux; \
