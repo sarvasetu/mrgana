@@ -199,12 +199,10 @@ RUN set -eux; \
 # Set environment for mobile tools
 ENV PATH="/opt/jadx/bin:/opt/dex2jar:/home/pentester/.local/bin:$PATH"
 
-USER pentester
-
-# Install Python-based mobile analysis tools
+# Install Python-based mobile analysis tools (as root)
 RUN pip3 install --break-system-packages androguard quark-engine apkleaks
 
-# Cleanup as root before switching user
+# Cleanup
 RUN apt-get autoremove -y && \
     apt-get autoclean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
