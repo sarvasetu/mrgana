@@ -212,6 +212,8 @@ ENV VIRTUAL_ENV="/app/.venv"
 WORKDIR /app
 
 # Install Caido CLI (HTTP interception proxy)
+# Must run as root to write to /usr/local/bin/
+USER root
 ARG CAIDO_VERSION=0.57.1
 RUN ARCH=$(uname -m) && \
     if [ "$ARCH" = "x86_64" ]; then \
@@ -230,6 +232,7 @@ RUN ARCH=$(uname -m) && \
     mv /tmp/caido-cli /usr/local/bin/ && \
     rm -f /tmp/caido-cli.tar.gz && \
     echo "Caido installed successfully"
+USER pentester
 
 ENV REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt
 ENV SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt
