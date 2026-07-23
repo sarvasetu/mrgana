@@ -232,7 +232,7 @@ RUN ARCH=$(uname -m) && \
     mv /tmp/caido-cli /usr/local/bin/ && \
     rm -f /tmp/caido-cli.tar.gz && \
     echo "Caido installed successfully"
-USER pentester
+USER root
 
 ENV REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt
 ENV SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt
