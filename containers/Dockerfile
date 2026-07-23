@@ -160,16 +160,14 @@ RUN pipx install semgrep && \
 RUN npm install -g jshint
 
 # ============================================================================
-# Mobile Security Testing Tools
+# Mobile App Static Analysis Tools (APK/IPA decompilation)
 # ============================================================================
 
 USER root
 
-# Install Android SDK tools and dependencies
+# Install Java for jadx
 RUN apt-get update && apt-get install -y --no-install-recommends \
     openjdk-17-jdk \
-    adb \
-    android-sdk \
     libncurses5 \
     libstdc++6 \
     && rm -rf /var/lib/apt/lists/*
@@ -180,7 +178,6 @@ RUN set -eux; \
     wget -q "https://github.com/skylot/jadx/releases/download/v${JADX_VERSION}/jadx-${JADX_VERSION}.zip" -O /tmp/jadx.zip && \
     unzip -q /tmp/jadx.zip -d /opt/jadx && \
     chmod +x /opt/jadx/bin/jadx && \
-    chmod +x /opt/jadx/bin/jadx-gui && \
     ln -sf /opt/jadx/bin/jadx /usr/local/bin/jadx && \
     rm /tmp/jadx.zip
 
@@ -191,24 +188,6 @@ RUN set -eux; \
     wget -q "https://bitbucket.org/iBotPeaches/apktool/downloads/apktool_${APKTOOL_VERSION}.jar" -O /usr/local/bin/apktool.jar && \
     chmod +x /usr/local/bin/apktool
 
-# Install androguard (Android application analysis)
-RUN pip3 install --break-system-packages androguard
-
-# Install quark-engine (Android malware analysis)
-RUN pip3 install --break-system-packages quark-engine
-
-# Install mobisec (mobile security tools collection)
-RUN pip3 install --break-system-packages mobisec
-
-# Install Frida tools (dynamic instrumentation)
-RUN pip3 install --break-system-packages frida-tools frida
-
-# Install objection (runtime mobile exploration)
-RUN pip3 install --break-system-packages objection
-
-# Install apkleaks (APK secrets detection)
-RUN pip3 install --break-system-packages apkleaks
-
 # Install dex2jar (DEX to JAR conversion)
 RUN set -eux; \
     wget -q "https://github.com/pxb1988/dex2jar/releases/download/v2.4/dex-tools-v2.4.zip" -O /tmp/dex2jar.zip && \
@@ -217,40 +196,13 @@ RUN set -eux; \
     for f in /opt/dex2jar/*.sh; do ln -sf "$f" /usr/local/bin/$(basename "$f" .sh); done && \
     rm /tmp/dex2jar.zip
 
-# Install apksigner and zipalign (Android build tools)
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    zipalign \
-    && rm -rf /var/lib/apt/lists/*
-
-# Install iOS analysis tools
-RUN set -eux; \
-    BAGGLE_VERSION="1.0.0"; \
-    wget -q "https://github.com/aspect-build/aspect-cli/releases/download/${BAGGLE_VERSION}/aspect-linux-amd64" -O /usr/local/bin/aspect && \
-    chmod +x /usr/local/bin/aspect || true
-
-# Install libimobiledevice (iOS device communication)
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    libimobiledevice-utils \
-    ideviceinstaller \
-    libimobiledevice6 \
-    usbmuxd \
-    && rm -rf /var/lib/apt/lists/*
-
-# Install class-dump (iOS binary analysis) - compile from source
-RUN set -eux; \
-    git clone --depth 1 https://github.com/nygard/class-dump.git /tmp/class-dump && \
-    cd /tmp/class-dump && \
-    make || true && \
-    cp class-dump /usr/local/bin/ 2>/dev/null || true && \
-    rm -rf /tmp/class-dump
-
-# Create mobile tools directory and symlinks
-RUN mkdir -p /home/pentester/mobile-tools && \
-    chown -R pentester:pentester /home/pentester/mobile-tools
-
 # Set environment for mobile tools
-ENV ANDROID_HOME=/usr/lib/android-sdk
 ENV PATH="/opt/jadx/bin:/opt/dex2jar:/home/pentester/.local/bin:$PATH"
+
+USER pentester
+
+# Install Python-based mobile analysis tools
+RUN pip3 install --break-system-packages androguard quark-engine apkleaks
 
 USER pentester
 

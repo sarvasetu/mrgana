@@ -16,11 +16,10 @@ Android security testing involves static analysis (decompilation, code review), 
 | **apktool** | APK reverse engineering | `apktool d app.apk` |
 | **androguard** | Android app analysis | `androguard analyze app.apk` |
 | **dex2jar** | DEX to JAR conversion | `d2j-dex2jar app.apk` |
-| **frida** | Dynamic instrumentation | `frida -U -l script.js com.app` |
-| **objection** | Runtime exploration | `objection -g com.app explore` |
 | **apkleaks** | Secrets detection | `apkleaks -f app.apk` |
 | **quark-engine** | Malware analysis | `quark -a app.apk -r rules.json` |
-| **adb** | Android Debug Bridge | `adb devices` |
+
+**Note**: This is a Docker sandbox for static analysis only. Dynamic analysis tools (frida, objection, adb) require physical devices or emulators and are not included.
 
 ## Testing Methodology
 

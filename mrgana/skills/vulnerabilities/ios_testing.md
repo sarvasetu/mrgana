@@ -12,16 +12,13 @@ iOS security testing involves binary analysis, keychain testing, runtime instrum
 
 | Tool | Purpose | Command |
 |------|---------|---------|
-| **class-dump** | Extract Obj-C class info | `class-dump BinaryName` |
-| **frida** | Dynamic instrumentation | `frida -U -l script.js com.app` |
-| **objection** | Runtime exploration | `objection -g com.app explore` |
-| **libimobiledevice** | iOS device communication | `ideviceinfo` |
-| **ideviceinstaller** | App installation | `ideviceinstaller -i app.ipa` |
 | **strings** | Extract strings | `strings BinaryName` |
 | **nm** | Symbol table dump | `nm BinaryName` |
-| **otool** | Mach-O binary analysis | `otool -L BinaryName` |
+| **file** | Binary type detection | `file BinaryName` |
+| **plutil** | Property list parsing | `plutil -p Info.plist` |
+| **grep** | Pattern searching | `grep -rn "pattern" .` |
 
-**Note**: iOS testing typically requires a jailbroken device or simulator. The sandbox tools work primarily on extracted IPA contents.
+**Note**: This is a Docker sandbox for static analysis of extracted IPA contents only. Dynamic analysis tools (frida, objection, class-dump) and device communication tools (libimobiledevice) require physical devices or macOS and are not included.
 
 ## Testing Methodology
 
