@@ -189,9 +189,12 @@ RUN set -eux; \
 # Install dex2jar (DEX to JAR conversion)
 RUN set -eux; \
     curl -sL "https://github.com/pxb1988/dex2jar/releases/download/v2.4/dex-tools-v2.4.zip" -o /tmp/dex2jar.zip && \
-    unzip -q /tmp/dex2jar.zip -d /opt/dex2jar && \
+    unzip -q /tmp/dex2jar.zip -d /opt/ && \
+    mv /opt/dex-tools-v2.4 /opt/dex2jar && \
     chmod +x /opt/dex2jar/*.sh && \
-    for f in /opt/dex2jar/*.sh; do ln -sf "$f" /usr/local/bin/$(basename "$f" .sh); done && \
+    ln -sf /opt/dex2jar/d2j-dex2jar.sh /usr/local/bin/d2j-dex2jar && \
+    ln -sf /opt/dex2jar/d2j-dex2smali.sh /usr/local/bin/d2j-dex2smali && \
+    ln -sf /opt/dex2jar/d2j-smali.sh /usr/local/bin/d2j-smali && \
     rm /tmp/dex2jar.zip
 
 # Set environment for mobile tools
